@@ -17,3 +17,10 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+
+# Node / Vite
+node_modules/
+dist/
+*.local
+.env
+.env.*
