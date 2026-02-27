@@ -55,6 +55,45 @@ src/
 
 A “IA” é simulada por filtros nos dados locais: a função `generateBuildFromData` (PoE 2) ou `generateBuildFromDataPoe1` (PoE 1) escolhe skill principal e gemas conforme arma e foco, e devolve modificadores recomendados para iniciantes.
 
+---
+
+## API com Gemini (Next.js)
+
+Na pasta **`server/`** há um servidor Next.js com a rota **`/api/generate-build`** que usa a **Google Gemini API** para gerar um guia em texto a partir dos dados do PoE2DB.
+
+### Fluxo de dados
+
+1. **Usuário** informa classe, arma e estilo (ex.: Ranger, Lança, Veneno).
+2. **Frontend** envia `POST` para `/api/generate-build` com `{ classe, arma, estilo }`.
+3. **Backend** lê `poe2_data.json`, filtra gemas/skills compatíveis com arma e estilo.
+4. **Backend** monta um prompt para o Gemini com esses dados reais e pede um guia para iniciante.
+5. **Gemini** devolve o texto do guia.
+6. **Backend** devolve o guia em JSON; o frontend exibe.
+
+Veja o diagrama em [docs/FLUXO_DADOS.md](docs/FLUXO_DADOS.md).
+
+### Como rodar a API
+
+```bash
+cd server
+cp .env.example .env
+# Edite .env e coloque sua GEMINI_API_KEY (https://aistudio.google.com/app/apikey)
+npm install
+npm run dev
+```
+
+A API fica em `http://localhost:3000`. Exemplo de chamada:
+
+```bash
+curl -X POST http://localhost:3000/api/generate-build \
+  -H "Content-Type: application/json" \
+  -d '{"classe":"Ranger","arma":"Lança","estilo":"Veneno"}'
+```
+
+A chave da Gemini deve estar **apenas** no `.env` do servidor (nunca no frontend).
+
+---
+
 ## Licença
 
 Uso livre para estudo e diversão. Path of Exile é marca da Grinding Gear Games. Este projeto não é oficial e não tem vínculo com a GGG.

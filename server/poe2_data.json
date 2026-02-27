@@ -1,0 +1,102 @@
+{
+  "skillGems": [
+    {
+      "id": "lightning_spear",
+      "name": "Lightning Spear",
+      "slug": "Lightning_Spear",
+      "tags": ["Attack", "Projectile", "Lightning"],
+      "weaponTypes": ["Lança"],
+      "description": "Lança relâmpago que estoura e atinge vários inimigos."
+    },
+    {
+      "id": "sweep",
+      "name": "Sweep",
+      "slug": "Sweep",
+      "tags": ["Attack", "Melee", "AoE"],
+      "weaponTypes": ["Lança", "Espada"],
+      "description": "Golpe em arco que atinge todos à frente."
+    },
+    {
+      "id": "poisonburst_arrow",
+      "name": "Poisonburst Arrow",
+      "slug": "Poisonburst_Arrow",
+      "tags": ["Attack", "Projectile", "Chaos", "Duration"],
+      "weaponTypes": ["Arco"],
+      "description": "Projétil que aplica veneno em área."
+    },
+    {
+      "id": "viper_strike",
+      "name": "Viper Strike",
+      "slug": "Viper_Strike",
+      "tags": ["Attack", "Melee", "Strike", "Chaos", "Duration"],
+      "weaponTypes": ["Lança", "Espada"],
+      "description": "Golpe que envenena o alvo, causando dano de caos ao longo do tempo."
+    },
+    {
+      "id": "contagion",
+      "name": "Contagion",
+      "slug": "Contagion",
+      "tags": ["Spell", "Chaos", "Duration", "AoE"],
+      "weaponTypes": ["Cajado"],
+      "description": "Aplica debuff de caos que se espalha quando o inimigo morre."
+    }
+  ],
+  "supportGems": [
+    {
+      "id": "poison_i",
+      "name": "Poison I",
+      "slug": "Poison_I",
+      "tags": ["Chaos", "Duration"],
+      "weaponTypes": ["Lança", "Arco", "Espada", "Cajado"]
+    },
+    {
+      "id": "lifetap",
+      "name": "Lifetap",
+      "slug": "Lifetap",
+      "tags": ["Life"],
+      "weaponTypes": ["Lança", "Arco", "Cajado", "Espada", "Clava", "Machado"]
+    },
+    {
+      "id": "prolonged_duration_i",
+      "name": "Prolonged Duration I",
+      "slug": "Prolonged_Duration_I",
+      "tags": ["Duration"],
+      "weaponTypes": ["Lança", "Arco", "Cajado", "Espada", "Clava", "Machado"]
+    },
+    {
+      "id": "impact_shockwave",
+      "name": "Impact Shockwave",
+      "slug": "Impact_Shockwave",
+      "tags": ["Attack", "Melee", "Strike", "AoE"],
+      "weaponTypes": ["Lança", "Espada", "Clava"]
+    },
+    {
+      "id": "armour_break_i",
+      "name": "Armour Break I",
+      "slug": "Armour_Break_I",
+      "tags": ["Physical"],
+      "weaponTypes": ["Lança", "Espada", "Clava", "Machado"]
+    },
+    {
+      "id": "chaos_damage",
+      "name": "Added Chaos Damage Support",
+      "slug": "Added_Chaos_Damage_Support",
+      "tags": ["Chaos"],
+      "weaponTypes": ["Lança", "Arco", "Cajado", "Espada"]
+    }
+  ],
+  "modifiers": [
+    { "name": "+ to maximum Life", "category": "life" },
+    { "name": "Chaos Resistance", "category": "resistance" },
+    { "name": "Fire Resistance", "category": "resistance" },
+    { "name": "to Evasion Rating", "category": "evasion" },
+    { "name": "increased Damage over Time", "category": "chaos" },
+    { "name": "increased Poison Duration", "category": "chaos" }
+  ],
+  "styles": {
+    "Veneno": ["Chaos", "Poison", "Duration"],
+    "Dano em Área": ["AoE", "Fire", "Cold", "Lightning"],
+    "Sobrevivência": ["Life", "Duration", "Buff"],
+    "Velocidade": ["Projectile", "Attack", "Movement"]
+  }
+}
