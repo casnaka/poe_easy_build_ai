@@ -58,7 +58,7 @@ export const SUPPORT_GEMS_POE1: SupportGemEntryPoe1[] = [
   { id: 'minion_damage', name: 'Minion Damage Support', slug: 'Minion_Damage_Support', weaponTypes: ['Cajado'] },
 ]
 
-import type { BuildRecommendation, GemaComLink } from './buildRecommendations'
+import type { BuildRecommendation, GemaComLink, PassivaSugerida } from './buildRecommendations'
 
 function getSupportGemsPoe1(arma: ArmaPoe1, foco: FocoPoe1): GemaComLink[] {
   const byWeapon = SUPPORT_GEMS_POE1.filter((g) => g.weaponTypes.includes(arma))
@@ -111,6 +111,28 @@ const DICAS_POE1: Record<FocoPoe1, string> = {
   Velocidade: 'Velocidade sem vida mata: não negligencie life e resistências.',
 }
 
+const PASSIVES_POE1: Array<{ name: string; category: string; description: string }> = [
+  { name: 'Life', category: 'life', description: 'Vida máxima. Prioridade em toda build.' },
+  { name: 'Elemental Resistance', category: 'resistance', description: 'Resistências elementais. Cap 75%.' },
+  { name: 'Physical Damage', category: 'physical', description: 'Dano físico. Melee e arco.' },
+  { name: 'Attack Speed', category: 'attack', description: 'Velocidade de ataque.' },
+  { name: 'Area of Effect', category: 'aoe', description: 'Raio de habilidades em área.' },
+  { name: 'Armour', category: 'armour', description: 'Redução de dano físico.' },
+]
+
+function getPassivesPoe1(foco: FocoPoe1): PassivaSugerida[] {
+  const priority = foco === 'Sobrevivência' ? ['life', 'resistance', 'armour'] : foco === 'Velocidade' ? ['attack', 'life', 'resistance'] : ['physical', 'aoe', 'life', 'resistance']
+  const sorted = [...PASSIVES_POE1].sort((a, b) => {
+    const iA = priority.indexOf(a.category)
+    const iB = priority.indexOf(b.category)
+    if (iA === -1 && iB === -1) return 0
+    if (iA === -1) return 1
+    if (iB === -1) return -1
+    return iA - iB
+  })
+  return sorted.slice(0, 6).map((p) => ({ nome: p.name, descricao: p.description }))
+}
+
 /**
  * Gera a build para PoE 1 usando dados compatíveis com poedb.tw.
  */
@@ -121,6 +143,7 @@ export function generateBuildFromDataPoe1(
   const skill = getMainSkillPoe1(arma, foco)
   const gemasSuporte = getSupportGemsPoe1(arma, foco)
   const statusPrioritarios = getModifiersPoe1(foco)
+  const passivasSugeridas = getPassivesPoe1(foco)
   const dicaDeOuro = DICAS_POE1[foco]
 
   return {
@@ -131,6 +154,7 @@ export function generateBuildFromDataPoe1(
     },
     gemasSuporte,
     statusPrioritarios,
+    passivasSugeridas,
     dicaDeOuro,
   }
 }

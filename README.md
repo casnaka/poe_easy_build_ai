@@ -57,18 +57,18 @@ A “IA” é simulada por filtros nos dados locais: a função `generateBuildFr
 
 ---
 
-## API com Gemini (Next.js)
+## API com OpenRouter (Next.js)
 
-Na pasta **`server/`** há um servidor Next.js com a rota **`/api/generate-build`** que usa a **Google Gemini API** para gerar um guia em texto a partir dos dados do PoE2DB.
+Na pasta **`server/`** há um servidor Next.js com a rota **`/api/generate-build`** que usa a **[OpenRouter](https://openrouter.ai/docs/quickstart)** para gerar um guia em texto (incluindo **passivas**) a partir dos dados do PoE2DB.
 
 ### Fluxo de dados
 
 1. **Usuário** informa classe, arma e estilo (ex.: Ranger, Lança, Veneno).
 2. **Frontend** envia `POST` para `/api/generate-build` com `{ classe, arma, estilo }`.
-3. **Backend** lê `poe2_data.json`, filtra gemas/skills compatíveis com arma e estilo.
-4. **Backend** monta um prompt para o Gemini com esses dados reais e pede um guia para iniciante.
-5. **Gemini** devolve o texto do guia.
-6. **Backend** devolve o guia em JSON; o frontend exibe.
+3. **Backend** lê `poe2_data.json`, filtra gemas, skills e passivas compatíveis com arma e estilo.
+4. **Backend** monta um prompt com esses dados reais e chama a OpenRouter (um endpoint para vários modelos de IA).
+5. **IA** devolve o guia em Markdown: skill, gemas, modificadores, **fluxo de passivas** (ordem de progressão na árvore), **itens por fase** (early / mid / late game) e dica de ouro.
+6. **Backend** devolve o guia em JSON; o frontend exibe com o botão "Gerar guia completo com IA" (apenas PoE 2).
 
 Veja o diagrama em [docs/FLUXO_DADOS.md](docs/FLUXO_DADOS.md).
 
@@ -77,7 +77,8 @@ Veja o diagrama em [docs/FLUXO_DADOS.md](docs/FLUXO_DADOS.md).
 ```bash
 cd server
 cp .env.example .env
-# Edite .env e coloque sua GEMINI_API_KEY (https://aistudio.google.com/app/apikey)
+# Edite .env e coloque sua OPENROUTER_API_KEY (https://openrouter.ai/keys)
+# Documentação: https://openrouter.ai/docs/quickstart
 npm install
 npm run dev
 ```
@@ -90,7 +91,9 @@ curl -X POST http://localhost:3000/api/generate-build \
   -d '{"classe":"Ranger","arma":"Lança","estilo":"Veneno"}'
 ```
 
-A chave da Gemini deve estar **apenas** no `.env` do servidor (nunca no frontend).
+**Conectar o frontend à API:** na raiz do projeto crie um `.env` com `VITE_API_URL=http://localhost:3000` (ou a URL onde o servidor Next está rodando). Assim, na tela de resultado (build PoE 2) o botão **"Gerar guia completo com IA"** chama a API e exibe o guia com **fluxo de passivas**, **itens por fase** (early / mid / late game) e ordem de progressão na árvore.
+
+A chave da OpenRouter deve estar **apenas** no `.env` do servidor (nunca no frontend). No `.env` do servidor você pode opcionalmente definir `OPENROUTER_SITE_URL` e `OPENROUTER_MODEL`.
 
 ---
 

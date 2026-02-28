@@ -1,12 +1,22 @@
 import type { Classe, Arma, Foco, BuildRecommendation } from './buildRecommendations'
 
+/** Nome da ascendência como aparece no poe.ninja (filtro ?class=) */
+export const POE2_NINJA_BUILDS_BASE = 'https://poe.ninja/poe2/builds/vaal'
+
 export interface Arquetipo {
   id: string
   nome: string
   classe: Classe
+  /** Ascendência (ex.: Witchhunter, Titan). Aparece no nome e no link do poe.ninja. */
+  ascendancy: string
   arma: Arma
   foco: Foco
   build: BuildRecommendation
+}
+
+/** Gera link direto para builds da ascendência no poe.ninja (liga Fate of the Vaal). */
+export function getPoe2NinjaBuildsUrl(ascendancy: string): string {
+  return `${POE2_NINJA_BUILDS_BASE}?class=${encodeURIComponent(ascendancy)}`
 }
 
 /**
@@ -16,8 +26,9 @@ export interface Arquetipo {
 export const ARQUETIPOS: Arquetipo[] = [
   {
     id: 'mercenary-besta',
-    nome: 'Mercenary Atirador de Besta',
+    nome: 'Mercenary (Witchhunter) — Atirador de Besta',
     classe: 'Mercenary',
+    ascendancy: 'Witchhunter',
     arma: 'Besta',
     foco: 'Velocidade',
     build: {
@@ -31,33 +42,47 @@ export const ARQUETIPOS: Arquetipo[] = [
         { nome: 'Pierce', url: 'https://poe2db.tw/us/Support_Gems' },
       ],
       statusPrioritarios: ['Life', 'Evasion', 'Physical Damage', 'Attack Speed', 'Dexterity', 'Resistances'],
+      passivasSugeridas: [
+        { nome: 'Heart of the Warrior', descricao: 'Vida para aguentar hits à distância.' },
+        { nome: 'Swift Strikes', descricao: 'Velocidade de ataque e evasão.' },
+        { nome: 'Deadly Draw', descricao: 'Dano de projéteis.' },
+        { nome: 'Elemental Resistance', descricao: 'Resistências no cap.' },
+      ],
       dicaDeOuro: 'Mantenha distância e use terreno para quebrar linha de visão; flasks de movimento são seus melhores amigos.',
     },
   },
   {
     id: 'witch-invocacoes',
-    nome: 'Witch de Invocações',
+    nome: 'Witch (Blood Mage) — Life Remnants',
     classe: 'Witch',
+    ascendancy: 'Blood Mage',
     arma: 'Cajado',
     foco: 'Sobrevivência',
     build: {
       skillPrincipal: {
-        nome: 'Raise Zombie / Summon Skeletons',
-        porQue: 'Invocações tankam por você e geram dano constante. Jogue seguro atrás dos minions.',
+        nome: 'Life Remnants',
+        porQue: 'Skill mais usada em Blood Mage no poe.ninja. Converte vida em poder ofensivo e sustentação.',
       },
       gemasSuporte: [
-        { nome: 'Meat Shield I', url: 'https://poe2db.tw/us/Meat_Shield_I' },
+        { nome: 'Lifetap', url: 'https://poe2db.tw/us/Lifetap' },
         { nome: 'Vitality I', url: 'https://poe2db.tw/us/Vitality_I' },
         { nome: 'Prolonged Duration I', url: 'https://poe2db.tw/us/Prolonged_Duration_I' },
       ],
-      statusPrioritarios: ['Energy Shield', 'Life', 'Mana', 'Minion Damage', 'Elemental Resistances', 'Intelligence'],
-      dicaDeOuro: 'Não suba em vida própria: priorize minions fortes e posicione-se longe do perigo.',
+      statusPrioritarios: ['Life', 'Energy Shield', 'Spell Damage', 'Elemental Resistances', 'Mana'],
+      passivasSugeridas: [
+        { nome: 'Sanguimancy', descricao: 'Passiva mais usada em Blood Mage; central na sinergia de vida/sangue.' },
+        { nome: 'Heart of the Warrior', descricao: 'Vida é recurso da build.' },
+        { nome: 'Vitality', descricao: 'Regeneração para sustentar custos de vida.' },
+        { nome: 'Elemental Resistance', descricao: 'Resistências no cap.' },
+      ],
+      dicaDeOuro: 'Vida é recurso e defesa: não negligencie pool de vida nem regeneração.',
     },
   },
   {
     id: 'warrior-tank-clava',
-    nome: 'Warrior Tank de Clava',
+    nome: 'Warrior (Titan) — Tank de Clava',
     classe: 'Warrior',
+    ascendancy: 'Titan',
     arma: 'Clava',
     foco: 'Sobrevivência',
     build: {
@@ -71,13 +96,20 @@ export const ARQUETIPOS: Arquetipo[] = [
         { nome: 'Vitality I', url: 'https://poe2db.tw/us/Vitality_I' },
       ],
       statusPrioritarios: ['Life', 'Block Chance', 'Armour', 'Elemental Resistances', 'Life Regeneration', 'Strength'],
+      passivasSugeridas: [
+        { nome: 'Heart of the Warrior', descricao: 'Vida prioritária em tank.' },
+        { nome: 'Elemental Resistance', descricao: 'Cap 75% resistências.' },
+        { nome: 'Vitality', descricao: 'Regeneração.' },
+        { nome: 'Armour Breaker', descricao: 'Dano físico contra inimigos.' },
+      ],
       dicaDeOuro: 'Resistências no cap (75%) primeiro; depois vida e block. Dano vem por último.',
     },
   },
   {
     id: 'ranger-arco-area',
-    nome: 'Ranger Dano em Área',
+    nome: 'Ranger (Pathfinder) — Dano em Área com Arco',
     classe: 'Ranger',
+    ascendancy: 'Pathfinder',
     arma: 'Arco',
     foco: 'Dano em Área',
     build: {
@@ -91,13 +123,20 @@ export const ARQUETIPOS: Arquetipo[] = [
         { nome: 'Acceleration', url: 'https://poe2db.tw/us/Acceleration' },
       ],
       statusPrioritarios: ['Life', 'Evasion', 'Physical/Cold Damage', 'Dexterity', 'Resistances'],
+      passivasSugeridas: [
+        { nome: 'Deadly Draw', descricao: 'Dano de projéteis.' },
+        { nome: 'Heart of the Warrior', descricao: 'Vida.' },
+        { nome: 'Swift Strikes', descricao: 'Velocidade de ataque.' },
+        { nome: 'Elemental Resistance', descricao: 'Resistências.' },
+      ],
       dicaDeOuro: 'Fique em movimento entre os ataques; rangers morrem parados.',
     },
   },
   {
     id: 'sorceress-elemental',
-    nome: 'Sorceress Elemental',
+    nome: 'Sorceress (Oracle) — Elemental',
     classe: 'Sorceress',
+    ascendancy: 'Oracle',
     arma: 'Cajado',
     foco: 'Dano em Área',
     build: {
@@ -111,6 +150,12 @@ export const ARQUETIPOS: Arquetipo[] = [
         { nome: 'Ignite I', url: 'https://poe2db.tw/us/Ignite_I' },
       ],
       statusPrioritarios: ['Spell Damage', 'Cold/Lightning Damage', 'Energy Shield', 'Intelligence', 'Resistances'],
+      passivasSugeridas: [
+        { nome: 'Elemental Resistance', descricao: 'Resistências.' },
+        { nome: 'Vitality', descricao: 'Regeneração.' },
+        { nome: 'Heart of the Warrior', descricao: 'Vida.' },
+        { nome: 'Chaos Mastery', descricao: 'Dano elemental/controle.' },
+      ],
       dicaDeOuro: 'Congelar inimigos é sua defesa: priorize cold e mantenha distância.',
     },
   },

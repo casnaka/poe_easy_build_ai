@@ -20,10 +20,16 @@ export interface GemaComLink {
   url: string
 }
 
+export interface PassivaSugerida {
+  nome: string
+  descricao: string
+}
+
 export interface BuildRecommendation {
   skillPrincipal: SkillPrincipal
   gemasSuporte: GemaComLink[]
   statusPrioritarios: string[]
+  passivasSugeridas: PassivaSugerida[]
   dicaDeOuro: string
 }
 

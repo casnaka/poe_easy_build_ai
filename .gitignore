@@ -23,4 +23,6 @@ node_modules/
 dist/
 *.local
 .env
-.env.*
+.env.local
+.env.*.local
+# Mantém .env.example versionado (template); NUNCA coloque chave real nele

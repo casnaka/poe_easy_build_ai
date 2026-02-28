@@ -106,6 +106,19 @@ export const ITEM_MODIFIERS: ItemModifierEntry[] = [
   { name: 'Physical Damage', slug: 'Physical_Damage', type: 'prefix', category: 'physical' },
 ]
 
+// --- Passivas (árvore passiva) ---
+const PASSIVES: Array<{ name: string; category: string; description: string }> = [
+  { name: 'Heart of the Warrior', category: 'life', description: 'Aumenta vida máxima. Prioridade em toda build.' },
+  { name: 'Fatal Toxins', category: 'chaos', description: 'Aumenta dano de veneno e caos. Essencial para Veneno.' },
+  { name: 'Swift Strikes', category: 'attack', description: 'Velocidade de ataque e evasão. Bom para Lança/Arco.' },
+  { name: 'Elemental Resistance', category: 'resistance', description: 'Resistências elementais. Cap 75% no endgame.' },
+  { name: 'Deadly Draw', category: 'projectile', description: 'Dano de projéteis. Ranger e Lança.' },
+  { name: 'Vitality', category: 'life', description: 'Regeneração de vida. Sobrevivência.' },
+  { name: 'Chaos Mastery', category: 'chaos', description: 'Duração e dano de caos/veneno.' },
+  { name: 'Armour Breaker', category: 'physical', description: 'Inimigos tomam mais dano físico. Melee.' },
+  { name: 'Iron Reflexes', category: 'evasion', description: 'Converte evasão em armadura. Híbrido defensivo.' },
+]
+
 // --- Helpers ---
 export function getPoe2DbGemUrl(slug: string): string {
   return gemUrl(slug)
@@ -117,7 +130,7 @@ export function getPoe2DbModifierUrl(slug: string | null): string | null {
 }
 
 // --- generateBuildFromData ---
-import type { Classe, Arma, Foco, BuildRecommendation, GemaComLink } from './buildRecommendations'
+import type { Classe, Arma, Foco, BuildRecommendation, GemaComLink, PassivaSugerida } from './buildRecommendations'
 
 /**
  * Filtra as melhores gemas de suporte para a arma e o foco.
@@ -158,6 +171,27 @@ function getModifiersForBuild(_arma: Arma, foco: Foco): string[] {
   // Dano em Área: fire/cold/lightning + physical
   const damage = ITEM_MODIFIERS.filter((m) => ['fire', 'cold', 'lightning', 'physical'].includes(m.category)).slice(0, 4)
   return [...new Set([...always, ...damage.map((m) => m.name)])]
+}
+
+/**
+ * Passivas sugeridas para a build (ordem de prioridade).
+ */
+function getPassivesForBuild(arma: Arma, foco: Foco): PassivaSugerida[] {
+  const priorityCategories =
+    foco === 'Sobrevivência'
+      ? ['life', 'resistance', 'evasion']
+      : foco === 'Velocidade'
+        ? ['attack', 'projectile', 'life']
+        : ['chaos', 'physical', 'life', 'resistance']
+  const sorted = [...PASSIVES].sort((a, b) => {
+    const iA = priorityCategories.indexOf(a.category)
+    const iB = priorityCategories.indexOf(b.category)
+    if (iA === -1 && iB === -1) return 0
+    if (iA === -1) return 1
+    if (iB === -1) return -1
+    return iA - iB
+  })
+  return sorted.slice(0, 6).map((p) => ({ nome: p.name, descricao: p.description }))
 }
 
 /**
@@ -210,6 +244,7 @@ export function generateBuildFromData(
   const skill = getMainSkillForBuild(classe, arma, foco)
   const gemasSuporte = getSupportGemsForBuild(arma, foco)
   const statusPrioritarios = getModifiersForBuild(arma, foco)
+  const passivasSugeridas = getPassivesForBuild(arma, foco)
   const dicaDeOuro = DICAS[foco]
 
   return {
@@ -220,6 +255,7 @@ export function generateBuildFromData(
     },
     gemasSuporte,
     statusPrioritarios,
+    passivasSugeridas,
     dicaDeOuro,
   }
 }

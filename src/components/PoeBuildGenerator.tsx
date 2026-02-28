@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import ReactMarkdown from 'react-markdown'
 import {
   Shield,
   Swords,
@@ -18,6 +19,9 @@ import {
   Gem,
   TrendingUp,
   Lightbulb,
+  Target,
+  Loader2,
+  ExternalLink,
 } from 'lucide-react'
 import {
   getBuildRecommendation,
@@ -140,14 +144,76 @@ function StepTitle({ step, title }: { step: number; title: string }) {
   )
 }
 
+const API_BASE = (import.meta as { env?: { VITE_API_URL?: string } }).env?.VITE_API_URL ?? ''
+
 function ResultView({
   recommendation,
   onReset,
+  gameVersion,
+  classe,
+  arma,
+  foco,
 }: {
   recommendation: BuildRecommendation
   onReset: () => void
+  gameVersion: GameVersion
+  classe: Classe | ClassePoe1
+  arma: Arma
+  foco: Foco
 }) {
-  const { skillPrincipal, gemasSuporte, statusPrioritarios, dicaDeOuro } = recommendation
+  const { skillPrincipal, gemasSuporte, statusPrioritarios, passivasSugeridas, dicaDeOuro } = recommendation
+  const [apiGuide, setApiGuide] = useState<{ loading: boolean; error: string | null; text: string | null }>({
+    loading: false,
+    error: null,
+    text: null,
+  })
+
+  const fetchFullGuide = async () => {
+    if (apiGuide.loading) return
+    setApiGuide({ loading: true, error: null, text: null })
+    try {
+      const url = `${API_BASE}/api/generate-build`.replace(/([^:]\/)\/+/g, '$1')
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          classe: String(classe),
+          arma: String(arma),
+          estilo: String(foco),
+        }),
+      })
+      const raw = await res.text()
+      let data: { guide?: string; error?: string }
+      try {
+        data = raw ? JSON.parse(raw) : {}
+      } catch {
+        if (!res.ok) {
+          throw new Error(raw || `Erro ${res.status} — servidor retornou resposta inválida.`)
+        }
+        throw new Error(
+          raw
+            ? 'Resposta inválida (não é JSON).'
+            : 'Resposta vazia. Confira se o servidor está rodando em server/ e se VITE_API_URL está correto.'
+        )
+      }
+      if (!res.ok) {
+        throw new Error(data?.error ?? (raw || `Erro ${res.status}`))
+      }
+      setApiGuide({ loading: false, error: null, text: data.guide ?? null })
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Erro ao gerar guia'
+      const needHint = !API_BASE && !msg.includes('OpenRouter')
+      const hint = needHint
+        ? ' Configure VITE_API_URL (ex.: http://localhost:3000) ou use o proxy (npm run dev na raiz).'
+        : ''
+      setApiGuide({
+        loading: false,
+        error: msg + hint,
+        text: null,
+      })
+    }
+  }
+
   return (
     <div className="space-y-6 opacity-0 animate-fadeIn">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -222,6 +288,57 @@ function ResultView({
         </div>
       </section>
 
+      <section className="rounded-lg border border-poe-gold/50 bg-poe-card p-4 sm:p-6">
+        <h3 className="flex items-center gap-2 text-poe-gold font-semibold mb-3">
+          <Target className="w-5 h-5" />
+          Passivas sugeridas (ordem de prioridade)
+        </h3>
+        <p className="text-poe-text-muted text-sm mb-3">
+          Siga a ordem abaixo. Para montar a árvore no planejador e ver a build visualizada:
+        </p>
+        <ol className="space-y-2 list-decimal list-inside text-poe-text mb-4">
+          {passivasSugeridas.map((p, i) => (
+            <li key={i}>
+              <span className="font-medium text-poe-gold">{p.nome}</span>
+              <span className="text-poe-text-muted"> — {p.descricao}</span>
+            </li>
+          ))}
+        </ol>
+        {gameVersion === 'poe2' && (
+          <div className="flex flex-wrap gap-3">
+            <a
+              href="https://poe2.ninja/passive-skill-tree"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-poe-gold/20 text-poe-gold border border-poe-gold hover:bg-poe-gold hover:text-poe-dark transition-colors text-sm font-medium"
+            >
+              <ExternalLink className="w-4 h-4" />
+              Abrir árvore passiva no poe2.ninja
+            </a>
+            <a
+              href="https://poe2.ninja/builds"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-poe-muted/50 text-poe-text-muted hover:border-poe-gold hover:text-poe-gold transition-colors text-sm"
+            >
+              <ExternalLink className="w-4 h-4" />
+              Ver builds da liga no poe2.ninja
+            </a>
+          </div>
+        )}
+        {gameVersion === 'poe1' && (
+          <a
+            href="https://www.pathofexile.com/passive-skill-tree"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-poe-gold/20 text-poe-gold border border-poe-gold hover:bg-poe-gold hover:text-poe-dark transition-colors text-sm font-medium"
+          >
+            <ExternalLink className="w-4 h-4" />
+            Abrir árvore passiva oficial (PoE 1)
+          </a>
+        )}
+      </section>
+
       <section className="rounded-lg border-2 border-poe-gold bg-poe-gold/10 p-4 sm:p-6">
         <h3 className="flex items-center gap-2 text-poe-gold font-semibold mb-2">
           <Lightbulb className="w-5 h-5" />
@@ -229,6 +346,44 @@ function ResultView({
         </h3>
         <p className="text-poe-text font-medium italic">&ldquo;{dicaDeOuro}&rdquo;</p>
       </section>
+
+      {gameVersion === 'poe2' && (
+        <section className="rounded-lg border border-poe-gold/50 bg-poe-card p-4 sm:p-6">
+          <h3 className="flex items-center gap-2 text-poe-gold font-semibold mb-3">
+            <Sparkles className="w-5 h-5" />
+            Guia completo com IA
+          </h3>
+          <p className="text-poe-text-muted text-sm mb-4">
+            Fluxo de passivas, itens por fase (early / mid / late game) e ordem de progressão na árvore.
+          </p>
+          <button
+            type="button"
+            onClick={fetchFullGuide}
+            disabled={apiGuide.loading}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-poe-gold/20 text-poe-gold border border-poe-gold hover:bg-poe-gold hover:text-poe-dark disabled:opacity-60 transition-colors"
+          >
+            {apiGuide.loading ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Gerando guia…
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-5 h-5" />
+                Gerar guia completo com IA
+              </>
+            )}
+          </button>
+          {apiGuide.error && (
+            <p className="mt-3 text-red-400 text-sm">{apiGuide.error}</p>
+          )}
+          {apiGuide.text && (
+            <div className="mt-4 p-4 rounded-lg bg-poe-surface border border-poe-muted/50 text-poe-text prose prose-invert prose-headings:text-poe-gold prose-strong:text-poe-gold prose-a:text-poe-gold max-w-none">
+              <ReactMarkdown>{apiGuide.text}</ReactMarkdown>
+            </div>
+          )}
+        </section>
+      )}
     </div>
   )
 }
@@ -281,11 +436,18 @@ export default function PoeBuildGenerator() {
   const armasList = gameVersion === 'poe1' ? ARMAS_POE1 : ARMAS_ALL
   const classesList = gameVersion === 'poe2' ? CLASSES_POE2 : gameVersion === 'poe1' ? CLASSES_POE1 : []
 
-  if (recommendation) {
+  if (recommendation && gameVersion && classe && arma && foco) {
     return (
       <div className="min-h-screen py-8 px-4 sm:px-6">
         <div className="max-w-2xl mx-auto">
-          <ResultView recommendation={recommendation} onReset={reset} />
+          <ResultView
+            recommendation={recommendation}
+            onReset={reset}
+            gameVersion={gameVersion}
+            classe={classe}
+            arma={arma}
+            foco={foco}
+          />
         </div>
       </div>
     )

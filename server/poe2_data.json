@@ -98,5 +98,15 @@
     "Dano em Área": ["AoE", "Fire", "Cold", "Lightning"],
     "Sobrevivência": ["Life", "Duration", "Buff"],
     "Velocidade": ["Projectile", "Attack", "Movement"]
-  }
+  },
+  "passives": [
+    { "name": "Heart of the Warrior", "category": "life", "description": "Aumenta vida máxima. Prioridade para toda build." },
+    { "name": "Fatal Toxins", "category": "chaos", "description": "Aumenta dano de veneno e caos. Essencial para Veneno." },
+    { "name": "Swift Strikes", "category": "attack", "description": "Velocidade de ataque e evasão. Bom para Lança/Arco." },
+    { "name": "Elemental Resistance", "category": "resistance", "description": "Resistências elementais. Cap 75% em endgame." },
+    { "name": "Deadly Draw", "category": "projectile", "description": "Dano de projéteis. Ranger/Lança." },
+    { "name": "Vitality", "category": "life", "description": "Regeneração de vida. Sobrevivência." },
+    { "name": "Chaos Mastery", "category": "chaos", "description": "Duração e dano de caos/veneno." },
+    { "name": "Armour Breaker", "category": "physical", "description": "Inimigos tomam mais dano físico. Melee." }
+  ]
 }
